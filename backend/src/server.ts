@@ -1,7 +1,6 @@
 import "dotenv/config";
 import app from "./app";
 import mongoose from "mongoose";
-import env from "./src/util/validateEnv";
 
 const port = process.env.PORT;
 
