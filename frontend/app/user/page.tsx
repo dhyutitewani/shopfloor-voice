@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import StatisticsGraph from '@/components/StatisticsGraph/StatisticsGraph';
 
-export default function Home() {
+export default function Page() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-16">
       <div className="z-10 w-full items-center text-center justify-between mb-10">

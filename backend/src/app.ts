@@ -1,7 +1,6 @@
 import cors from "cors";
 import bodyParser from "body-parser";
-import session from "express-session";
-import MongoStore from "connect-mongo";
+import authRoutes from "./routes/auth.routes";
 import suggestionRoutes from "./routes/routes";
 import createHttpError, { isHttpError } from "http-errors";
 import express, { Application, NextFunction, Request, Response } from "express";
@@ -16,6 +15,7 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
+app.use('/api/admin', authRoutes);
 app.use('/api/suggestions', suggestionRoutes);
 
 app.use((req: Request, res: Response, next: NextFunction) => {

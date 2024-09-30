@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "created for admin purposes",
 };
 
-export default function AdminLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

@@ -1,6 +1,5 @@
-// middleware.ts
-import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 
 export default withAuth(
     function middleware(request: NextRequestWithAuth) {
@@ -20,12 +19,6 @@ export default withAuth(
             return NextResponse.next(); // Public access, no redirection needed
         }
 
-        // Redirect authenticated users to /users by default for any other paths
-        if (token) {
-            return NextResponse.redirect(new URL("/users", request.url));
-        }
-
-        // Allow public access to other routes
         return NextResponse.next();
     },
     {

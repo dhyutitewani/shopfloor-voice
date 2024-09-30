@@ -73,3 +73,21 @@ export const createSuggestion = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to save suggestion", error: (err as Error).message });
   }
 };
+
+export const deleteSuggestion = async (req: Request, res: Response) => {
+  const { hash } = req.params; // Get the suggestion hash from the URL params
+
+  try {
+    // Find the suggestion by hash and delete it
+    const deletedSuggestion = await Suggestion.findOneAndDelete({ hash });
+
+    if (!deletedSuggestion) {
+      return res.status(404).json({ message: "Suggestion not found" });
+    }
+
+    // Return success message
+    res.status(200).json({ message: "Suggestion deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete suggestion", error: (err as Error).message });
+  }
+};

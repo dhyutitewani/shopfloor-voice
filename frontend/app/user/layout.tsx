@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "created to collect suggestions",
 };
 
-export default function UserLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
