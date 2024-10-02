@@ -1,8 +1,10 @@
 'use client';
 
 import * as React from 'react';
+import { Alert } from '@mui/material'; 
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useFormState, useFormStatus } from 'react-dom';
 
 type State = {
   errors: {
@@ -11,98 +13,79 @@ type State = {
 };
 
 export default function LoginForm() {
-  const [state, setState] = React.useState<State>({ errors: { text: undefined } });
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [error, setError] = React.useState('');
-  const [submitted, setSubmitted] = React.useState(false);
-  
+  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
   const router = useRouter();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError('');   
+  async function authenticate(
+    prevState: void | undefined,
+    formData: FormData
+  ) {
+    const values = Object.fromEntries(formData);
+    const { email, password } = values;
 
-    if (!username || !password) {
-      setState({ errors: { text: 'Suggestion and Category are required.' } });
-      return;
+    // Validate input
+    if (!email || !password) {
+      return 'Email and Password are required.'; // Set the error message
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/signIn', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
+      const result: any = await signIn("credentials", {
+        ...values,
+        redirect: false,
       });
 
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || 'Network response was not ok');
+      // Success
+      if (result.status === 200) {
+        router.push('/admin');
+      } else if (result.status === 401) {
+        throw new Error(result.message ?? "Invalid email or password.");
       }
-
-      const result = await signIn('credentials', {
-        email : username,
-        password,
-        redirect: true,
-      });
-
-      if (result?.error) {
-        setError(result.error); // Set error message
-      } else {
-        router.push('/admin/dashboard'); // Redirect to admin dashboard on successful login
-      }
-    } catch (error) {
-      console.error('Error loging in.', error);
-      const errorMessage = error instanceof Error ? error.message : 'User not admin.';
-      setState({ errors: { text: errorMessage } });
+    } catch (error: any) {
+      console.error(error.message);
+      return error.message;
     }
-  };
-
-  const errors = state?.errors ?? { text: undefined };
-
-  if (submitted) {
-    return (
-      <div className="relative flex items-center justify-center">
-        <div className="text-center mt-40">
-          <h1 className="text-3xl font-bold">Thank you for your response!</h1>
-        </div>
-      </div>
-    );
   }
 
   return (
     <main className="bg-white p-8 rounded-sm shadow-md w-[23rem]">
-      <form onSubmit={handleSubmit}>
-        {error && <p className="text-red-500 mb-4">{error}</p>} {/* Display error message */}
+      <form action={dispatch}>
         <div className="mb-4">
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
+            name="email"
+            autoComplete="off"
+            placeholder="Email"
             className="border border-gray-300 rounded-sm px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
           />
         </div>
-        <div className="mb-6">
+        <div className="mb-2">
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
             placeholder="Password"
             className="border border-gray-300 rounded-sm px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
           />
         </div>
-        <button
-          type="submit"
-          className="grid grid-col-1 group rounded-sm border border-gray-400 dark:bg-neutral-500/30 px-5 py-3 w-[7rem] mx-auto"
-        >
-          Login
-        </button>
+        <div className="mb-1 min-h-[10px]">
+          {errorMessage && (
+            <span>
+              <Alert severity="warning">{errorMessage}</Alert>
+            </span>
+          )}
+        </div>
+        {/* <span className="mt-10 text-sm ml-2 hover:text-blue-500 cursor-pointer">Forgot Password?</span> */}
+        <LoginButton />
       </form>
     </main>
+  );
+}
+
+function LoginButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button aria-disabled={pending} className="mt-3 grid grid-col-1 group rounded-sm border border-gray-400 dark:bg-neutral-500/30 px-5 py-3 w-[9rem] mx-auto">
+      {pending ? "Submitting..." : "Login"}
+    </button>
   );
 }

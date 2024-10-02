@@ -1,7 +1,7 @@
 import express from "express";
 import { USER_ROLES } from "../constants";
 import validate from "../middlewares/validation";
-import { verifyTokenAndRole } from "../middlewares/validate-access";
+import { verifyTokenAndRole } from "../middlewares/validate.access";
 import { login, updatePassword, createAdmin, updateAdmin } from "../controllers/auth.controller";
 import { LoginSchema, createAdminSchema, updatePasswordSchema, updateAdminSchema } from "../schemas/users.schema";
 

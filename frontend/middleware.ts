@@ -7,10 +7,11 @@ export default withAuth(
         const { token } = request.nextauth;
 
         // Check if the path is for admin access
-        if (request.nextUrl.pathname.startsWith("/")) {
+        if (request.nextUrl.pathname.startsWith("/admin") &&
+            request.nextauth.token?.role !== "ADMIN" ) {
             // If the user is not authenticated, redirect to the admin login page
             if (!token) {
-                return NextResponse.redirect(new URL("/login", request.url));
+                return NextResponse.redirect(new URL("/denied", request.url));
             }
         }
 
@@ -31,5 +32,7 @@ export default withAuth(
 
 // Applies the middleware only to paths you want to protect
 export const config = {
-    matcher: ["/:path*", "/users/:path*"], // Adjust as needed
+    matcher: [
+		"/((?!api|_next/static|_next/image|favicon.ico|login|screen/).)",
+	], // Adjust as needed
 };

@@ -1,15 +1,16 @@
-import * as dotenv from 'dotenv'
 import mongoose from "mongoose";
+import * as dotenv from "dotenv";
 import usersSeed from "./user.seed";
+
 dotenv.config();
 
 async function seed() {
   try {
-    if (!process.env.MONGODB_URI) {
+    if (!process.env.MONGO_CONNECTION_STRING) {
       throw new Error('MONGO_URI must be defined');
     }
 
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGO_CONNECTION_STRING);
     console.info('Connected to MongoDb');
 
     console.info('Seeding process initiated...');
@@ -18,7 +19,6 @@ async function seed() {
   } catch (err) {
     console.info('Error during seeding:', err);
   } finally {
-    // Disconnect from MongoDB
     mongoose.disconnect();
   }
 }

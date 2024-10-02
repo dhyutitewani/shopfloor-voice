@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model";
 import { Request, Response } from "express";
@@ -8,8 +7,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 	const { email, password } = req.body;
 
 	try {
-		const existingUser = await User.findOne({ email }).populate([
-		]);
+		const existingUser = await User.findOne({ email });
 
 		if (!existingUser) {
 			throw "User not exists.";
@@ -19,8 +17,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 		}
 
 		const passwordsMatch = await Password.compare(
-			existingUser.password,
-			password
+			existingUser.password, password
 		);
 		if (!passwordsMatch) {
 			throw "Invalid credentials";

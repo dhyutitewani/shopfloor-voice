@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
 import { Password } from "../services/password";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 // Define roles as an enum
 enum UserRole {

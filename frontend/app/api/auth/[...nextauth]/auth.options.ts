@@ -1,5 +1,5 @@
 import { z } from "zod";
-import NextAuth, { NextAuthOptions } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
@@ -7,7 +7,7 @@ export const authOptions: NextAuthOptions = {
 		CredentialsProvider({
 			name: "Credentials",
 			credentials: {
-				username: { label: "Username", type: "text" },
+				email: { label: "Email", type: "text" },
 				password: { label: "Password", type: "password" },
 			},
 			async authorize(credentials) {
@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
 						const { email, password } = parsedCredentials.data;
 
 						const res = await fetch(
-							process.env.NEXT_PUBLIC_API_URL + "/users/login",
+							process.env.NEXT_PUBLIC_API_URL + "/admin/login",
 							{
 								method: "POST",
 								headers: {
@@ -78,7 +78,7 @@ export const authOptions: NextAuthOptions = {
 			return session;
 		},
 	},
-	pages: {
-		signIn: "/login",
-	},
+	// pages: {
+	// 	signIn: "admin/login",
+	// },
 };

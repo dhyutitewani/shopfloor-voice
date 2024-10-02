@@ -1,7 +1,7 @@
 //@ts-ignore
-import { promisify } from 'util';
+import { promisify } from "util";
 //@ts-ignore
-import { scrypt, randomBytes } from 'crypto'; 
+import { scrypt, randomBytes } from "crypto"; 
 
 const scryptAsync = promisify(scrypt);
 

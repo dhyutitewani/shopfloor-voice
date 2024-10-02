@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { styled } from "@mui/material/styles";
-import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent, InputBase } from "@mui/material";
+import React, { useState } from 'react';
+import { styled } from '@mui/material/styles';
+import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent, InputBase } from '@mui/material';
 
 const departments = [
   { value: 'HR', label: 'HR' },

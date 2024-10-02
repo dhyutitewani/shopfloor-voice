@@ -12,7 +12,7 @@ export default function Page() {
       </div>
       <div className="mb-28 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-2 lg:text-center">
         <Link
-          href="user/addSuggestion"
+          href="users/addSuggestion"
           className="group rounded-lg border border-gray-400 dark:bg-neutral-500/30 px-5 py-4 w-[25rem] mx-auto"
           rel="noopener noreferrer"
         >
@@ -21,7 +21,7 @@ export default function Page() {
           </h2>
         </Link>
         <Link
-          href="user/viewSuggestion"
+          href="users/viewSuggestion"
           className="group rounded-lg border border-gray-400 dark:bg-neutral-500/30 px-5 py-4 w-[25rem] mx-auto"
           rel="noopener noreferrer"
         >
