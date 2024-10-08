@@ -1,9 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { Alert } from '@mui/material'; 
-import { signIn } from 'next-auth/react';
+import { Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
 import { useFormState, useFormStatus } from 'react-dom';
 
 type State = {
@@ -15,6 +15,7 @@ type State = {
 export default function LoginForm() {
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   async function authenticate(
     prevState: void | undefined,
@@ -29,16 +30,18 @@ export default function LoginForm() {
     }
 
     try {
-      const result: any = await signIn("credentials", {
-        ...values,
-        redirect: false,
+      const result: any = await signIn('credentials', {
+        email,
+        password
       });
 
       // Success
       if (result.status === 200) {
+        // Force session update after successful login
         router.push('/admin');
+        // await signIn('credentials', { email, password });
       } else if (result.status === 401) {
-        throw new Error(result.message ?? "Invalid email or password.");
+        throw new Error(result.message ?? 'Invalid email or password.');
       }
     } catch (error: any) {
       console.error(error.message);
@@ -73,7 +76,6 @@ export default function LoginForm() {
             </span>
           )}
         </div>
-        {/* <span className="mt-10 text-sm ml-2 hover:text-blue-500 cursor-pointer">Forgot Password?</span> */}
         <LoginButton />
       </form>
     </main>
@@ -84,8 +86,11 @@ function LoginButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button aria-disabled={pending} className="mt-3 grid grid-col-1 group rounded-sm border border-gray-400 dark:bg-neutral-500/30 px-5 py-3 w-[9rem] mx-auto">
-      {pending ? "Submitting..." : "Login"}
+    <button
+      aria-disabled={pending}
+      className="mt-3 grid grid-col-1 group rounded-sm border border-gray-400 dark:bg-neutral-500/30 px-5 py-3 w-[9rem] mx-auto"
+    >
+      {pending ? 'Submitting...' : 'Login'}
     </button>
   );
 }
