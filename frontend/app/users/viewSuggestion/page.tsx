@@ -1,4 +1,4 @@
-import SuggestionTable from "@/components/SuggestionTable/SuggestionTable";
+import SuggestionTable from '@/components/SuggestionTable/SuggestionTable';
 
 export default function Page() {
   return (

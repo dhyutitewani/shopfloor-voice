@@ -1,4 +1,4 @@
-import SuggestionForm from "@/components/SuggestionForm/SuggestionForm";
+import SuggestionForm from '@/components/SuggestionForm/SuggestionForm';
 
 export default function Page() {
   return (

@@ -1,12 +1,17 @@
 'use client';
 
 import * as React from 'react';
+import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
+import Select from '@mui/material/Select'; 
 import TableRow from '@mui/material/TableRow';
+import MenuItem from '@mui/material/MenuItem'; 
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
+import InputLabel from '@mui/material/InputLabel'; 
+import FormControl from '@mui/material/FormControl'; 
 import TableContainer from '@mui/material/TableContainer';
 
 interface Column {
@@ -14,7 +19,6 @@ interface Column {
   label: string;
   minWidth?: number;
   maxWidth?: number;
-  minHeight?: number;
   maxHeight?: number; 
   align?: 'right';
   format?: (value: any) => string;
@@ -42,8 +46,20 @@ interface Data {
   employeeId: string;
 }
 
+const categories = [
+  { value: 'HR', label: 'HR' },
+  { value: 'IT', label: 'IT' },
+  { value: 'Safety', label: 'Safety' },
+  { value: 'Quality', label: 'Quality' },
+  { value: 'Production', label: 'Production' },
+  { value: 'Environment', label: 'Environment' },
+  { value: 'Management', label: 'Management' },
+  { value: 'Other', label: 'Other' },
+];
+
 const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
   const [rows, setRows] = React.useState<Data[]>([]);
+  const [selectedCategory, setSelectedCategory] = React.useState<string>(''); // State for selected category
 
   const fetchSuggestions = async () => {
     try {
@@ -100,55 +116,87 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
     fetchSuggestions();
   }, []);
 
+  // Filter rows based on the selected category
+  const filteredRows = rows.filter(row => {
+    return selectedCategory ? row.category === selectedCategory : true; // Return true if category matches or if no category is selected
+  });
+
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  style={{
-                    minWidth: column.minWidth,
-                    maxWidth: column.maxWidth,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow hover role="checkbox" tabIndex={-1} key={row.hash}>
-                {columns.map((column) => {
-                  const value = row[column.id];
-                  return (
-                    <TableCell
-                      key={column.id}
-                      style={{
-                        minWidth: column.minWidth,
-                        maxWidth: column.maxWidth,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: column.id === 'suggestion' ? 'block' : undefined, 
-                        maxHeight: column.maxHeight, 
-                        overflowY: column.id === 'suggestion' ? 'auto' : undefined,
-                      }}
-                    >
-                      {column.format ? column.format(value) : value}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
+    <Box>
+      <Box sx={{ width: '17%', padding: 2, marginBottom: -2 }}>
+        <p className="text-[19px] mb-2 ml-2">Filter</p>
+        <FormControl fullWidth variant="outlined">
+          <InputLabel>Category</InputLabel>
+          <Select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            label="Category"
+          >
+            <MenuItem value="">All</MenuItem>
+            {categories.map(category => (
+              <MenuItem key={category.value} value={category.value}>
+                {category.label}
+              </MenuItem>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+          </Select>
+        </FormControl>
+      </Box>
+      <Paper sx={{ width: '100%', overflow: 'hidden' }}>      
+        <TableContainer sx={{ maxHeight: 440 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableCell
+                    key={column.id}
+                    style={{
+                      minWidth: column.minWidth,
+                      maxWidth: column.maxWidth,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {column.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredRows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length} align='center'>
+                    No suggestions found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredRows.map((row) => (
+                  <TableRow hover role='checkbox' tabIndex={-1} key={row.hash}>
+                    {columns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell
+                          key={column.id}
+                          style={{
+                            minWidth: column.minWidth,
+                            maxWidth: column.maxWidth,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: column.id === 'suggestion' ? 'block' : undefined, 
+                            maxHeight: column.maxHeight, 
+                          }}
+                        >
+                          {column.format ? column.format(value) : value}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Box>
   );
 });
 

@@ -58,9 +58,9 @@ export default function ClientForm() {
       const result = await response.json();
       console.log('Suggestion saved:', result);
 
+      setCategory('');
       setSuggestion('');
       setEmployeeId('');
-      setCategory('');
       setState({ errors: { text: undefined } });
       setSubmitted(true);
 

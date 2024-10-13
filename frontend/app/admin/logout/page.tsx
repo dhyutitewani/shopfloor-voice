@@ -18,7 +18,7 @@ export default function Logout() {
         Welcome, {session.user?.firstName} {session.user?.lastName}!
       </h1>
       <button
-        className="px-6 py-2 bg-red-800 text-white rounded-s"
+        className="px-6 py-2 bg-red-800 text-white rounded-sm"
         onClick={() => {
           signOut({ callbackUrl: '/admin/login' });
         }}

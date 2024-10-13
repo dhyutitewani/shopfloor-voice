@@ -1,4 +1,4 @@
-import AdminSuggestionTable from "@/components/SuggestionTable/AdminSuggestionTable";
+import AdminSuggestionTable from '@/components/SuggestionTable/AdminSuggestionTable';
 
 export default function Page() {
   return (

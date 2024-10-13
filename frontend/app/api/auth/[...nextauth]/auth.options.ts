@@ -1,6 +1,6 @@
-import { z } from "zod";
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import { z } from 'zod';
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions = {
 	providers: [
@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
 						const { email, password } = parsedCredentials.data;
 
 						const res = await fetch(
-							process.env.NEXT_PUBLIC_API_URL + "/admin/login",
+							process.env.NEXT_PUBLIC_API_URL + '/admin/login',
 							{
 								method: "POST",
 								headers: {
@@ -78,7 +78,4 @@ export const authOptions: NextAuthOptions = {
 			return session;
 		},
 	},
-	// pages: {
-	// 	signIn: "admin/login",
-	// },
 };
