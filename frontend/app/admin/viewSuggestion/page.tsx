@@ -1,4 +1,4 @@
-import SuggestionTable from "@/components/SuggestionTable/SuggestionTable";
+import AdminSuggestionTable from "@/components/SuggestionTable/AdminSuggestionTable";
 
 export default function Page() {
   return (
@@ -7,7 +7,7 @@ export default function Page() {
         <h1 className="underline text-3xl font-medium">View Suggestions</h1>
       </div>
       <div className="mt-10 mb-20">
-        <SuggestionTable />
+        <AdminSuggestionTable />
       </div>
     </main>
   );

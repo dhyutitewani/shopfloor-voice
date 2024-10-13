@@ -5,13 +5,11 @@ import { verifyTokenAndRole } from "../middlewares/validate.access";
 import * as SuggestionsController from "../controllers/suggestion.controller";
 
 const router = express.Router();
-router.use("/admin", authRoutes);
-
-// router.post("/admin/login", login);
-router.delete("/admin/suggestions/:id", verifyTokenAndRole('admin'), SuggestionsController.deleteSuggestion);
+// router.use("/admin", authRoutes);
 
 router.get("/", SuggestionsController.getSuggestions);
 router.post("/", SuggestionsController.createSuggestion);
+router.delete("/:id", SuggestionsController.deleteSuggestion);
 
 router.get("*", function (req, res) {
 	res.status(404).json({ error: "Page not found" });

@@ -28,12 +28,14 @@ export const verifyTokenAndRole =
 			process.env.JWT_KEY as string,
 			(err: any, decoded: any) => {
 				if (err) {
-					return res
-						.status(401)
-						.json({ message: "Unauthorized - Invalid token" });
+					console.log("Unauthorized - Invalid token");
+					return res.status(401).json({ message: "Unauthorized - Invalid token" });
 				}
+				console.log("Decoded token:", decoded);
+
 				// Check if the user has the required role
 				if (!checkHasPermission({ requiredRole, role: decoded.role })) {
+					console.log("Forbidden - Insufficient permission");
 					return res.status(403).json({
 						message: "Forbidden - Insufficient permission",
 					});
@@ -41,7 +43,6 @@ export const verifyTokenAndRole =
 
 				// Attach the decoded user information to the request object for future use
 				req.user = decoded;
-
 				next();
 			}
 		);

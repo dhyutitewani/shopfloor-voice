@@ -75,11 +75,11 @@ export const createSuggestion = async (req: Request, res: Response) => {
 };
 
 export const deleteSuggestion = async (req: Request, res: Response) => {
-  const { hash } = req.params; // Get the suggestion hash from the URL params
+  const { id } = req.params; // Get the suggestion hash from the URL params
 
   try {
     // Find the suggestion by hash and delete it
-    const deletedSuggestion = await Suggestion.findOneAndDelete({ hash });
+    const deletedSuggestion = await Suggestion.findOneAndDelete({ _id : id });
 
     if (!deletedSuggestion) {
       return res.status(404).json({ message: "Suggestion not found" });

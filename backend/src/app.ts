@@ -9,7 +9,7 @@ const app: Application = express();
 
 app.use(cors({
   origin: 'http://localhost:3000',
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'DELETE'],
   credentials: true,
 }));
 
@@ -21,7 +21,6 @@ app.use('/api/suggestions', suggestionRoutes);
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(createHttpError(404, "Endpoint not found"));
 });
-
 
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   console.error(error);
