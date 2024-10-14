@@ -10,6 +10,8 @@ interface State {
   };
 }
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 export default function ClientForm() {
   const [state, setState] = React.useState<State>({ errors: { text: undefined } });
   const [suggestion, setSuggestion] = React.useState('');
@@ -42,7 +44,7 @@ export default function ClientForm() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/suggestions', {
+      const response = await fetch(`${BACKEND_URL}/api/suggestions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

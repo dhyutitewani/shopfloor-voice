@@ -14,6 +14,8 @@ interface Suggestion {
   employeeId: string;
 }
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 const SuggestionBarGraph: React.FC = () => {
   const [suggestionData, setSuggestionData] = useState<Suggestion[]>([]);
   const [chartData, setChartData] = useState<any>({ labels: [], datasets: [] });
@@ -22,7 +24,7 @@ const SuggestionBarGraph: React.FC = () => {
     // Fetch suggestions data
     const fetchSuggestions = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/suggestions');
+        const response = await fetch(`${BACKEND_URL}/api/suggestions`);
         if (response.ok) {
           const data: Suggestion[] = await response.json();
           setSuggestionData(data);

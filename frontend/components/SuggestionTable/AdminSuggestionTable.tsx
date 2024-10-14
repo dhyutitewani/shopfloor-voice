@@ -59,7 +59,7 @@ const categories = [
   { value: 'Other', label: 'Other' },
 ];
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
   const { data: session } = useSession();

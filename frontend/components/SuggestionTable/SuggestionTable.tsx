@@ -57,13 +57,15 @@ const categories = [
   { value: 'Other', label: 'Other' },
 ];
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
   const [rows, setRows] = React.useState<Data[]>([]);
   const [selectedCategory, setSelectedCategory] = React.useState<string>(''); // State for selected category
 
   const fetchSuggestions = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/suggestions');
+      const response = await fetch(`${BACKEND_URL}/api/suggestions`);
       if (response.ok) {
         const data: Data[] = await response.json();
         setRows(data.map((item) => ({
@@ -90,7 +92,7 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
     if (!window.confirm('Are you sure you want to delete this suggestion?')) return;
   
     try {
-      const response = await fetch(`http://localhost:5000/api/suggestions/${hash}`, {
+      const response = await fetch(`${BACKEND_URL}/api/suggestions/${hash}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`, // Include token in Authorization header
