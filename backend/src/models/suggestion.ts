@@ -7,6 +7,7 @@ const suggestionSchema = new Schema(
     suggestion: { type: String, required: true },  
     dateTime: { type: String, required: true },  
     employeeId: { type: String, required: false },  
+    status: { type: String, enum: ['read', 'unread'], default: 'unread' },
   },
   { timestamps: true }  
 );

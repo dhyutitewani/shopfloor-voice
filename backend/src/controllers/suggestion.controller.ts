@@ -91,3 +91,29 @@ export const deleteSuggestion = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to delete suggestion", error: (err as Error).message });
   }
 };
+
+export const markSuggestion = async (req: Request, res: Response) => {
+  const { id, status } = req.params;
+
+  // Validate status
+  if (!['read', 'unread'].includes(status)) {
+    return res.status(400).json({ message: "Invalid status. Must be 'read' or 'unread'." });
+  }
+
+  try {
+    const suggestion = await Suggestion.findByIdAndUpdate(
+      id,
+      { status: status },
+      { new: true }
+    );
+
+    if (!suggestion) {
+      return res.status(404).json({ message: 'Suggestion not found' });
+    }
+
+    res.status(200).json(suggestion);
+  } catch (error) {
+    console.error('Error updating suggestion status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

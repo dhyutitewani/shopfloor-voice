@@ -123,7 +123,7 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
 
   return (
     <Box>
-      <Box sx={{ width: '17%', padding: 2, marginBottom: -2 }}>
+      <Box sx={{ width: '17%', padding: 2, marginBottom: -1 }}>
         <p className="text-[19px] mb-2 ml-2">Filter</p>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Category</InputLabel>
