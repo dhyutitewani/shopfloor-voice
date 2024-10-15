@@ -1,26 +1,16 @@
 {
     "version": 2,
-    "rewrites": [
+    "builds": [
       {
-        "source": "/api/auth/(.*)",
-        "destination": "/src/routes/auth.routes.ts"
+        "src": "index.js",
+        "use": "@vercel/node"
       },
       {
-        "source": "/api/suggestions/(.*)",
-        "destination": "/src/routes/routes.ts"
-      },
-      {
-        "source": "/api/(.*)",
-        "destination": "/src/server.ts"
-      },
-      {
-        "source": "/(.*)",
-        "destination": "/src/app.ts"
+        "src": "src/**/*",
+        "use": "@vercel/static"
       }
     ],
-    "build": {
-      "env": {
-        "NODE_ENV": "production"
-      }
-    }
+    "routes": [
+      { "src": "/(.*)", "dest": "/" }
+    ]
   }  
