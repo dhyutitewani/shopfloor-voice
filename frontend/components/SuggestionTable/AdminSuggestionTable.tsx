@@ -9,16 +9,22 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableContainer from '@mui/material/TableContainer';
-import { Box, Select, Tooltip, MenuItem, InputLabel, FormControl, SelectChangeEvent } from '@mui/material';
+import {
+  Box,
+  Select,
+  Tooltip,
+  MenuItem,
+  FormControl,
+  SelectChangeEvent,
+} from '@mui/material';
 
 interface Column {
   id: 'hash' | 'suggestion' | 'category' | 'dateTime' | 'employeeId' | 'action' | 'status';
   label: string;
   minWidth?: number;
   maxWidth?: number;
-  minHeight?: number;
   maxHeight?: number;
-  align?: 'right' | 'center'; // Updated to include 'center'
+  align?: 'right' | 'center';
   format?: (value: any) => string;
 }
 
@@ -34,8 +40,8 @@ const columns: readonly Column[] = [
     format: (value: number) => new Date(value).toLocaleString('en-GB'),
   },
   { id: 'employeeId', label: 'Employee ID', minWidth: 100, maxWidth: 120 },
-  { id: 'status', label: 'Status', minWidth: 100, maxWidth: 120, align: 'center' }, 
-  { id: 'action', label: 'Action', minWidth: 130, maxWidth: 130, align: 'center' }, 
+  { id: 'status', label: 'Status', minWidth: 100, maxWidth: 120, align: 'center' },
+  { id: 'action', label: 'Action', minWidth: 130, maxWidth: 130, align: 'center' },
 ];
 
 interface Data {
@@ -45,7 +51,7 @@ interface Data {
   category: string;
   dateTime: number;
   employeeId: string;
-  status: 'unread' | 'read'; // Status of the suggestion
+  status: 'unread' | 'read';
 }
 
 const dateOptions = [
@@ -55,15 +61,15 @@ const dateOptions = [
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
+const AdminSuggestionTable = React.forwardRef<unknown, {}>(function AdminSuggestionTable(props, ref) {
   const { data: session } = useSession();
   const [rows, setRows] = React.useState<Data[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = React.useState<string>('');
-  const [dateFilter, setDateFilter] = React.useState<string>('oldest'); 
+  const [dateFilter, setDateFilter] = React.useState<string>('oldest');
 
-  // Fetch suggestions from the backend API
-  const fetchSuggestions = async () => {
+  // Memoize fetchSuggestions to prevent unnecessary re-creations
+  const fetchSuggestions = React.useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`${BACKEND_URL}/api/suggestions`, {
@@ -73,6 +79,7 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
         },
         credentials: session ? 'include' : 'omit',
       });
+
       if (response.ok) {
         const data: Data[] = await response.json();
         setRows(
@@ -86,18 +93,30 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
             status: item.status || 'unread',
           }))
         );
+      } else {
+        console.error('Failed to fetch suggestions:', response.statusText);
       }
     } catch (error) {
       console.error('Error fetching suggestions:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [BACKEND_URL, session]);
+
+  // Expose fetchSuggestions via ref if needed
+  React.useImperativeHandle(ref, () => ({
+    fetchSuggestions,
+  }));
+
+  // Fetch suggestions on component mount and when fetchSuggestions changes
+  React.useEffect(() => {
+    fetchSuggestions();
+  }, [fetchSuggestions]);
 
   // Toggle the suggestion status between 'read' and 'unread'
-  const toggleReadStatus = async (id: string, currentStatus: 'read' | 'unread') => {
+  const toggleReadStatus = React.useCallback(async (id: string, currentStatus: 'read' | 'unread') => {
     const newStatus = currentStatus === 'read' ? 'unread' : 'read';
-    const endpoint = `${BACKEND_URL}/api/suggestions/${id}/${newStatus}`; // Updated to match backend route
+    const endpoint = `${BACKEND_URL}/api/suggestions/${id}/${newStatus}`;
 
     try {
       const response = await fetch(endpoint, {
@@ -105,7 +124,7 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Ensure credentials are included for authenticated requests
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -114,16 +133,16 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
             row._id === id ? { ...row, status: newStatus } : row
           )
         );
+      } else {
+        console.error('Failed to toggle status:', response.statusText);
       }
-      // Handle non-OK responses appropriately (e.g., show a notification)
     } catch (error) {
-      // Consider using a logging service instead of console.error
       console.error('Error toggling status:', error);
     }
-  };
+  }, [BACKEND_URL]);
 
   // Delete a suggestion by _id
-  const deleteSuggestion = async (id: string) => {
+  const deleteSuggestion = React.useCallback(async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this suggestion?')) return;
 
     try {
@@ -132,44 +151,45 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Ensure credentials are included for authenticated requests
+        credentials: 'include',
       });
 
       if (response.ok) {
         setRows((prevRows) => prevRows.filter((row) => row._id !== id));
         alert('Suggestion deleted successfully.');
+      } else {
+        console.error('Failed to delete suggestion:', response.statusText);
       }
     } catch (error) {
-      // Consider using a logging service instead of console.error
       console.error('Error deleting suggestion:', error);
     }
+  }, [BACKEND_URL]);
+
+  // Handle category change
+  const handleCategoryChange = (event: SelectChangeEvent<string>) => {
+    setSelectedCategory(event.target.value as string);
   };
 
-  React.useImperativeHandle(ref, () => ({
-    fetchSuggestions,
-  }));
-
-  React.useEffect(() => {
-    fetchSuggestions();
-  }, [session]); 
-
+  // Filter rows based on selected category
   const filteredRows = selectedCategory
-  ? rows.filter((row) => row.category === selectedCategory)
-  : rows;
+    ? rows.filter((row) => row.category === selectedCategory)
+    : rows;
 
-  // Add sorting based on dateFilter
-  const sortedRows = filteredRows.sort((a, b) => {
-    if (dateFilter === 'oldest') {
+  // Sort rows based on date filter
+  const sortedRows = React.useMemo(() => {
+    return [...filteredRows].sort((a, b) => {
+      if (dateFilter === 'oldest') {
         return a.dateTime - b.dateTime;
-    } else {
-        return b.dateTime - a.dateTime; 
-    }
-  });
+      } else {
+        return b.dateTime - a.dateTime;
+      }
+    });
+  }, [filteredRows, dateFilter]);
 
   return (
     <div>
       <Box sx={{ width: '17%', padding: 2, marginBottom: -1, maxHeight: '200px', overflowY: 'auto' }}>
-        <p className="text-[19px] mb-2 ml-2">Filter by Date</p>        
+        <p className="text-[19px] mb-2 ml-2">Filter by Date</p>
         <FormControl fullWidth variant="outlined">
           <Select
             value={dateFilter}
@@ -199,10 +219,9 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       verticalAlign: 'middle',
-                      // Removed display, maxHeight, overflowY
                     }}
                   >
-                      {column.label}  
+                    {column.label}
                   </TableCell>
                 ))}
               </TableRow>
@@ -214,8 +233,8 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                     Loading...
                   </TableCell>
                 </TableRow>
-              ) : filteredRows.length > 0 ? (
-                filteredRows.map((row) => (
+              ) : sortedRows.length > 0 ? (
+                sortedRows.map((row) => (
                   <TableRow
                     hover
                     role="checkbox"
@@ -224,8 +243,8 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                     style={{
                       backgroundColor:
                         row.status === 'read'
-                          ? 'rgba(209, 213, 219, 0.9)' 
-                          : 'rgba(255, 255, 255, 0.5)', 
+                          ? 'rgba(209, 213, 219, 0.9)'
+                          : 'rgba(255, 255, 255, 0.5)',
                     }}
                   >
                     {columns.map((column) => {
@@ -240,8 +259,6 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                               minWidth: column.minWidth,
                               maxWidth: column.maxWidth,
                               verticalAlign: 'middle',
-                              justifyContent: 'center',
-                              alignItems: 'center',
                             }}
                           >
                             {session ? (
@@ -250,7 +267,7 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                                   onClick={() => toggleReadStatus(row._id, row.status)}
                                   style={{
                                     backgroundColor: 'transparent',
-                                    color: row.status === 'read' ? 'blue' : 'black', // Change color as needed
+                                    color: row.status === 'read' ? 'blue' : 'black',
                                     border: 'none',
                                     cursor: 'pointer',
                                     textDecoration: 'underline',
@@ -284,28 +301,22 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                                   onClick={() => deleteSuggestion(row._id)}
                                   style={{
                                     backgroundColor: 'transparent',
-                                    color: 'rgb(0, 0, 0)', // Red color for delete
+                                    color: 'rgb(0, 0, 0)', // Adjust color as needed
                                     border: 'none',
                                     cursor: 'pointer',
                                     padding: 0,
                                   }}
                                 >
-                                  {/* Delete Icon */}
+                                  {/* Delete Icon SVG */}
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
-                                    x="0px" y="0px" 
-                                    width="23" 
-                                    height="23" 
+                                    x="0px"
+                                    y="0px"
+                                    width="23"
+                                    height="23"
                                     viewBox="0 0 48 48"
                                   >
-                                    <path d="M 24 4 C 20.491685 4 17.570396 6.6214322 17.080078 10 L 10.238281 10 A 1.50015 1.50015 0 0 0 9.9804688 9.9785156 A 1.50015 1.50015 0 0 0 
-                                          9.7578125 10 L 6.5 10 A 1.50015 1.50015 0 1 0 6.5 13 L 8.6386719 13 L 11.15625 39.029297 C 11.427329 41.835926 13.811782 44 16.630859 44 L 31.367188 44 C 
-                                          34.186411 44 36.570826 41.836168 36.841797 39.029297 L 39.361328 13 L 41.5 13 A 1.50015 1.50015 0 1 0 41.5 10 L 38.244141 10 A 1.50015 1.50015 0 0 0 37.763672 
-                                          10 L 30.919922 10 C 30.429604 6.6214322 27.508315 4 24 4 z M 24 7 C 25.879156 7 27.420767 8.2681608 27.861328 10 L 20.138672 10 C 20.579233 8.2681608 22.120844 
-                                          7 24 7 z M 11.650391 13 L 36.347656 13 L 33.855469 38.740234 C 33.730439 40.035363 32.667963 41 31.367188 41 L 16.630859 41 C 15.331937 41 14.267499 40.033606 
-                                          14.142578 38.740234 L 11.650391 13 z M 20.476562 17.978516 A 1.50015 1.50015 0 0 0 19 19.5 L 19 34.5 A 1.50015 1.50015 0 1 0 22 34.5 L 22 19.5 A 
-                                          1.50015 1.50015 0 0 0 20.476562 17.978516 z M 27.476562 17.978516 A 1.50015 1.50015 0 0 0 26 19.5 L 26 34.5 A 1.50015 1.50015 0 1 0 29 34.5 L 29 19.5 A 1.50015 1.50015 0 0 0 27.476562 17.978516 z">
-                                    </path> 
+                                    <path d="M24 4C20.4917 4 17.5704 6.62143 17.0801 10L10.2383 10A1.50015 1.50015 0 0 0 9.98047 9.97852A1.50015 1.50015 0 0 0 9.75781 10L6.5 10A1.50015 1.50015 0 1 0 6.5 13L8.63867 13L11.1563 39.0293C11.4273 41.8359 13.8118 44 16.6309 44L31.3672 44C34.1864 44 36.5708 41.8362 36.8418 39.0293L39.3613 13L41.5 13A1.50015 1.50015 0 1 0 41.5 10L38.2441 10A1.50015 1.50015 0 0 0 37.7637 10L30.9199 10C30.4296 6.62143 27.5083 4 24 4zM24 7C25.8792 7 27.4208 8.26816 27.8613 10L20.1387 10C20.5792 8.26816 22.1208 7 24 7zM11.6504 13L36.3477 13L33.8555 38.7402C33.7304 40.0354 32.668 41 31.3672 41L16.6309 41C15.3319 41 14.2675 40.0336 14.1426 38.7402L11.6504 13zM20.4766 17.9785A1.50015 1.50015 0 0 0 19 19.5L19 34.5A1.50015 1.50015 0 1 0 22 34.5L22 19.5A1.50015 1.50015 0 0 0 20.4766 17.9785zM27.4766 17.9785A1.50015 1.50015 0 0 0 26 19.5L26 34.5A1.50015 1.50015 0 1 0 29 34.5L29 19.5A1.50015 1.50015 0 0 0 27.4766 17.9785z"></path>
                                   </svg>
                                 </button>
                               </Tooltip>
@@ -323,7 +334,6 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                               minWidth: column.minWidth,
                               maxWidth: column.maxWidth,
                               whiteSpace: 'normal', // Allow wrapping
-                               // Break long words
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               verticalAlign: 'middle',
@@ -334,7 +344,7 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                                 style={{
                                   maxHeight: column.maxHeight,
                                   overflowY: 'auto',
-                                  paddingRight: '8px', // Optional: to prevent scrollbar from overlapping text
+                                  paddingRight: '8px', // Prevent scrollbar overlapping text
                                 }}
                               >
                                 {column.format && typeof value === 'number'
@@ -366,5 +376,8 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
     </div>
   );
 });
+
+// Assign displayName for better debugging and to satisfy ESLint
+AdminSuggestionTable.displayName = 'AdminSuggestionTable';
 
 export default AdminSuggestionTable;

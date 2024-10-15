@@ -53,7 +53,7 @@ const dateOptions = [
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
+const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(props, ref) {
   const [rows, setRows] = React.useState<Data[]>([]);
   const [dateFilter, setDateFilter] = React.useState<string>('oldest'); 
 
