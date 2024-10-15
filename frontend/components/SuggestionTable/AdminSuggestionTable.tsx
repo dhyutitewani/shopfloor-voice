@@ -34,8 +34,8 @@ const columns: readonly Column[] = [
     format: (value: number) => new Date(value).toLocaleString('en-GB'),
   },
   { id: 'employeeId', label: 'Employee ID', minWidth: 100, maxWidth: 120 },
-  { id: 'status', label: 'Status', minWidth: 100, maxWidth: 120, align: 'center' }, // Center align
-  { id: 'action', label: 'Action', minWidth: 50, maxWidth: 100, align: 'center' }, // Center align
+  { id: 'status', label: 'Status', minWidth: 100, maxWidth: 120, align: 'center' }, 
+  { id: 'action', label: 'Action', minWidth: 130, maxWidth: 130, align: 'center' }, 
 ];
 
 interface Data {
@@ -76,7 +76,6 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        // Include credentials only if the user is authenticated
         credentials: session ? 'include' : 'omit',
       });
       if (response.ok) {
@@ -92,8 +91,6 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
             status: item.status || 'unread',
           }))
         );
-      } else {
-        console.error('Failed to fetch suggestions');
       }
     } catch (error) {
       console.error('Error fetching suggestions:', error);
@@ -122,14 +119,11 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
             row._id === id ? { ...row, status: newStatus } : row
           )
         );
-      } else {
-        const errorData = await response.json();
-        console.error('Error data:', errorData);
-        alert(`Failed to update suggestion status: ${errorData.message || 'Unknown error'}`);
       }
+      // Handle non-OK responses appropriately (e.g., show a notification)
     } catch (error) {
-      console.error('Error updating suggestion status:', error);
-      alert('An error occurred while updating the suggestion status.');
+      // Consider using a logging service instead of console.error
+      console.error('Error toggling status:', error);
     }
   };
 
@@ -149,14 +143,10 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
       if (response.ok) {
         setRows((prevRows) => prevRows.filter((row) => row._id !== id));
         alert('Suggestion deleted successfully.');
-      } else {
-        const errorData = await response.json();
-        console.error('Error data:', errorData);
-        alert(`Failed to delete suggestion: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
+      // Consider using a logging service instead of console.error
       console.error('Error deleting suggestion:', error);
-      alert('An error occurred while deleting the suggestion.');
     }
   };
 
@@ -166,14 +156,13 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
 
   React.useEffect(() => {
     fetchSuggestions();
-  }, [session]); // Refetch suggestions when session changes
+  }, [session]); 
 
   // Handle category filter change
   const handleCategoryChange = (event: SelectChangeEvent<string>) => {
     setSelectedCategory(event.target.value as string);
   };
 
-  // Filter rows based on selected category
   const filteredRows = selectedCategory
     ? rows.filter((row) => row.category === selectedCategory)
     : rows;
@@ -189,6 +178,7 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
             value={selectedCategory}
             onChange={handleCategoryChange}
             label="Category"
+            sx={{ backgroundColor: 'white' }}
           >
             <MenuItem value="">
               <p>All</p>
@@ -202,7 +192,7 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
         </FormControl>
       </Box>
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <TableContainer sx={{ maxHeight: 450 }}>
+        <TableContainer sx={{ maxHeight: 430 }}>
           <Table stickyHeader aria-label="suggestions table">
             <TableHead>
               <TableRow>
@@ -216,9 +206,10 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       verticalAlign: 'middle',
+                      // Removed display, maxHeight, overflowY
                     }}
                   >
-                    {column.label}
+                      {column.label}  
                   </TableCell>
                 ))}
               </TableRow>
@@ -256,13 +247,11 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                               minWidth: column.minWidth,
                               maxWidth: column.maxWidth,
                               verticalAlign: 'middle',
-                              display: 'flex',
-                              flexDirection: 'column',
+                              justifyContent: 'center',
                               alignItems: 'center',
                             }}
                           >
                             {session ? (
-                              // If user is authenticated, show the button to toggle read/unread
                               <Tooltip title={row.status === 'read' ? 'Mark as Unread' : 'Mark as Read'}>
                                 <button
                                   onClick={() => toggleReadStatus(row._id, row.status)}
@@ -281,7 +270,6 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                                 </button>
                               </Tooltip>
                             ) : (
-                              // If user is NOT authenticated, just show the text 'Read' or 'Unread'
                               <span>{row.status.charAt(0).toUpperCase() + row.status.slice(1)}</span>
                             )}
                           </TableCell>
@@ -341,15 +329,30 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                             style={{
                               minWidth: column.minWidth,
                               maxWidth: column.maxWidth,
-                              whiteSpace: 'nowrap',
+                              whiteSpace: 'normal', // Allow wrapping
+                               // Break long words
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               verticalAlign: 'middle',
                             }}
                           >
-                            {column.format && typeof value === 'number'
-                              ? column.format(value)
-                              : value}
+                            {column.id === 'suggestion' ? (
+                              <div
+                                style={{
+                                  maxHeight: column.maxHeight,
+                                  overflowY: 'auto',
+                                  paddingRight: '8px', // Optional: to prevent scrollbar from overlapping text
+                                }}
+                              >
+                                {column.format && typeof value === 'number'
+                                  ? column.format(value)
+                                  : value}
+                              </div>
+                            ) : (
+                              column.format && typeof value === 'number'
+                                ? column.format(value)
+                                : value
+                            )}
                           </TableCell>
                         );
                       }

@@ -46,7 +46,6 @@ export const getSuggestions = async (req: Request, res: Response) => {
 };
 
 export const createSuggestion = async (req: Request, res: Response) => {
-  console.log(req.body)
   const { suggestion, employeeId, category } = req.body as SuggestionData;
 
   if (!validateSuggestion(req.body)) {

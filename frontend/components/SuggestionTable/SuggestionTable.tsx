@@ -4,14 +4,14 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
-import Select from '@mui/material/Select'; 
+import Select from '@mui/material/Select';
 import TableRow from '@mui/material/TableRow';
-import MenuItem from '@mui/material/MenuItem'; 
+import MenuItem from '@mui/material/MenuItem';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
-import InputLabel from '@mui/material/InputLabel'; 
-import FormControl from '@mui/material/FormControl'; 
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 import TableContainer from '@mui/material/TableContainer';
 
 interface Column {
@@ -19,13 +19,13 @@ interface Column {
   label: string;
   minWidth?: number;
   maxWidth?: number;
-  maxHeight?: number; 
+  maxHeight?: number;
   align?: 'right';
   format?: (value: any) => string;
 }
 
 const columns: readonly Column[] = [
-  { id: 'hash', label: '#', minWidth: 100, maxWidth: 1200 },
+  { id: 'hash', label: '#', minWidth: 90, maxWidth: 90 },
   { id: 'category', label: 'Category', minWidth: 100, maxWidth: 120 },
   { id: 'suggestion', label: 'Suggestion', minWidth: 500, maxWidth: 500, maxHeight: 75 }, 
   {
@@ -82,33 +82,29 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
   };
 
   const deleteSuggestion = async (hash: string) => {
-    const token = localStorage.getItem('token'); // Retrieve token from localStorage
+    const token = localStorage.getItem('token'); 
   
     if (!token) {
-      alert('You must be logged in to delete a suggestion.');
       return;
     }
-  
+
     if (!window.confirm('Are you sure you want to delete this suggestion?')) return;
   
     try {
       const response = await fetch(`${BACKEND_URL}/api/suggestions/${hash}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`, // Include token in Authorization header
+          'Authorization': `Bearer ${token}`, 
         },
       });
   
       if (response.ok) {
         setRows((prevRows) => prevRows.filter((row) => row.hash !== hash));
-      } else {
-        alert('Failed to delete suggestion.');
-      }
+      } 
     } catch (error) {
       console.error('Error deleting suggestion:', error);
-      alert('An error occurred while deleting the suggestion.');
     }
-  };  
+  };
 
   React.useImperativeHandle(ref, () => ({
     fetchSuggestions,
@@ -120,12 +116,12 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
 
   // Filter rows based on the selected category
   const filteredRows = rows.filter(row => {
-    return selectedCategory ? row.category === selectedCategory : true; // Return true if category matches or if no category is selected
+    return selectedCategory ? row.category === selectedCategory : true; 
   });
 
   return (
     <Box>
-      <Box sx={{ width: '17%', padding: 2, marginBottom: -1 }}>
+      <Box sx={{ width: '17%', padding: 2, maxHeight: '200px', overflowY: 'auto' }}>
         <p className="text-[19px] mb-2 ml-2">Filter</p>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Category</InputLabel>
@@ -133,6 +129,7 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             label="Category"
+            sx={{ backgroundColor: 'white' }}
           >
             <MenuItem value="">All</MenuItem>
             {categories.map(category => (
@@ -144,8 +141,8 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
         </FormControl>
       </Box>
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>      
-        <TableContainer sx={{ maxHeight: 440 }}>
-          <Table stickyHeader aria-label="sticky table">
+        <TableContainer sx={{ maxHeight: 370 }}>
+          <Table stickyHeader aria-label="suggestion table">
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
@@ -183,11 +180,27 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
                             maxWidth: column.maxWidth,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            display: column.id === 'suggestion' ? 'block' : undefined, 
-                            maxHeight: column.maxHeight, 
+                            display: column.id === 'suggestion' ? 'block' : undefined,
                           }}
                         >
-                          {column.format ? column.format(value) : value}
+                          {column.id === 'suggestion' ? (
+                            <div
+                              style={{
+                                maxHeight: column.maxHeight,
+                                maxWidth: column.maxWidth,
+                                overflowY: 'auto', // Vertical scroll
+                                paddingRight: '8px', // Prevent scrollbar overlap
+                              }}
+                            >
+                              {column.format && typeof value === 'number'
+                                ? column.format(value)
+                                : value}
+                            </div>
+                          ) : (
+                            column.format && typeof value === 'number'
+                              ? column.format(value)
+                              : value
+                          )}
                         </TableCell>
                       );
                     })}
