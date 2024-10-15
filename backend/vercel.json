@@ -1,21 +1,21 @@
 {
     "version": 2,
-    "routes": [
+    "rewrites": [
       {
-        "src": "/api/auth/(.*)",
-        "dest": "/src/routes/auth.routes.ts"
+        "source": "/api/auth/(.*)",
+        "destination": "/src/routes/auth.routes.ts"
       },
       {
-        "src": "/api/suggestions/(.*)",
-        "dest": "/src/routes/routes.ts"
+        "source": "/api/suggestions/(.*)",
+        "destination": "/src/routes/routes.ts"
       },
       {
-        "src": "/api/(.*)",
-        "dest": "/src/server.ts"
+        "source": "/api/(.*)",
+        "destination": "/src/server.ts"
       },
       {
-        "src": "/(.*)",
-        "dest": "/src/app.ts"
+        "source": "/(.*)",
+        "destination": "/src/app.ts"
       }
     ],
     "build": {
@@ -23,4 +23,4 @@
         "NODE_ENV": "production"
       }
     }
-}  
+  }  
