@@ -27,7 +27,7 @@ interface Column {
 const columns: readonly Column[] = [
   { id: 'hash', label: '#', minWidth: 90, maxWidth: 90 },
   { id: 'category', label: 'Category', minWidth: 100, maxWidth: 120 },
-  { id: 'suggestion', label: 'Suggestion', minWidth: 500, maxWidth: 500, maxHeight: 75 }, 
+  { id: 'suggestion', label: 'Suggestion', minWidth: 500, maxWidth: 500, maxHeight: 75 },
   {
     id: 'dateTime',
     label: 'Date & Time Submitted',
@@ -46,22 +46,16 @@ interface Data {
   employeeId: string;
 }
 
-const categories = [
-  { value: 'HR', label: 'HR' },
-  { value: 'IT', label: 'IT' },
-  { value: 'Safety', label: 'Safety' },
-  { value: 'Quality', label: 'Quality' },
-  { value: 'Production', label: 'Production' },
-  { value: 'Environment', label: 'Environment' },
-  { value: 'Management', label: 'Management' },
-  { value: 'Other', label: 'Other' },
+const dateOptions = [
+  { value: 'oldest', label: 'Oldest to Latest' },
+  { value: 'latest', label: 'Latest to Oldest' },
 ];
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
   const [rows, setRows] = React.useState<Data[]>([]);
-  const [selectedCategory, setSelectedCategory] = React.useState<string>(''); // State for selected category
+  const [dateFilter, setDateFilter] = React.useState<string>('oldest'); 
 
   const fetchSuggestions = async () => {
     try {
@@ -82,25 +76,25 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
   };
 
   const deleteSuggestion = async (hash: string) => {
-    const token = localStorage.getItem('token'); 
-  
+    const token = localStorage.getItem('token');
+
     if (!token) {
       return;
     }
 
     if (!window.confirm('Are you sure you want to delete this suggestion?')) return;
-  
+
     try {
       const response = await fetch(`${BACKEND_URL}/api/suggestions/${hash}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`, 
+          'Authorization': `Bearer ${token}`,
         },
       });
-  
+
       if (response.ok) {
         setRows((prevRows) => prevRows.filter((row) => row.hash !== hash));
-      } 
+      }
     } catch (error) {
       console.error('Error deleting suggestion:', error);
     }
@@ -114,33 +108,30 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
     fetchSuggestions();
   }, []);
 
-  // Filter rows based on the selected category
-  const filteredRows = rows.filter(row => {
-    return selectedCategory ? row.category === selectedCategory : true; 
+  const sortedRows = [...rows].sort((a, b) => {
+    return dateFilter === 'latest' ? b.dateTime - a.dateTime : a.dateTime - b.dateTime;
   });
 
   return (
     <Box>
-      <Box sx={{ width: '17%', padding: 2, maxHeight: '200px', overflowY: 'auto' }}>
-        <p className="text-[19px] mb-2 ml-2">Filter</p>
+      <Box sx={{ width: '19%', padding: 2, maxHeight: '200px', overflowY: 'auto' }}>
+        <p className="text-[19px] mb-2 ml-2">Filter by Date</p>
         <FormControl fullWidth variant="outlined">
-          <InputLabel>Category</InputLabel>
           <Select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            label="Category"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            // label="Sort Order"
             sx={{ backgroundColor: 'white' }}
           >
-            <MenuItem value="">All</MenuItem>
-            {categories.map(category => (
-              <MenuItem key={category.value} value={category.value}>
-                {category.label}
+            {dateOptions.map(option => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
       </Box>
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>      
+      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
         <TableContainer sx={{ maxHeight: 370 }}>
           <Table stickyHeader aria-label="suggestion table">
             <TableHead>
@@ -161,14 +152,14 @@ const SuggestionTable: React.FC = React.forwardRef((props, ref) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredRows.length === 0 ? (
+              {sortedRows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={columns.length} align='center'>
                     No suggestions found.
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredRows.map((row) => (
+                sortedRows.map((row) => (
                   <TableRow hover role='checkbox' tabIndex={-1} key={row.hash}>
                     {columns.map((column) => {
                       const value = row[column.id];

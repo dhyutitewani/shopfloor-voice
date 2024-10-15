@@ -48,15 +48,9 @@ interface Data {
   status: 'unread' | 'read'; // Status of the suggestion
 }
 
-const categories = [
-  { value: 'HR', label: 'HR' },
-  { value: 'IT', label: 'IT' },
-  { value: 'Safety', label: 'Safety' },
-  { value: 'Quality', label: 'Quality' },
-  { value: 'Production', label: 'Production' },
-  { value: 'Environment', label: 'Environment' },
-  { value: 'Management', label: 'Management' },
-  { value: 'Other', label: 'Other' },
+const dateOptions = [
+  { value: 'oldest', label: 'Oldest to Latest' },
+  { value: 'latest', label: 'Latest to Oldest' },
 ];
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -66,6 +60,7 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
   const [rows, setRows] = React.useState<Data[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = React.useState<string>('');
+  const [dateFilter, setDateFilter] = React.useState<string>('oldest'); 
 
   // Fetch suggestions from the backend API
   const fetchSuggestions = async () => {
@@ -158,34 +153,32 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
     fetchSuggestions();
   }, [session]); 
 
-  // Handle category filter change
-  const handleCategoryChange = (event: SelectChangeEvent<string>) => {
-    setSelectedCategory(event.target.value as string);
-  };
-
   const filteredRows = selectedCategory
-    ? rows.filter((row) => row.category === selectedCategory)
-    : rows;
+  ? rows.filter((row) => row.category === selectedCategory)
+  : rows;
+
+  // Add sorting based on dateFilter
+  const sortedRows = filteredRows.sort((a, b) => {
+    if (dateFilter === 'oldest') {
+        return a.dateTime - b.dateTime;
+    } else {
+        return b.dateTime - a.dateTime; 
+    }
+  });
 
   return (
     <div>
-      <Box sx={{ width: '17%', padding: 2, marginBottom: -2, maxHeight: '200px', overflowY: 'auto' }}>
-        <p className="text-[19px] ml-6 mb-[-8px]">Filter</p>
-        <FormControl variant="outlined" sx={{ m: 2, minWidth: 140 }}>
-          <InputLabel id="category-select-label">Category</InputLabel>
+      <Box sx={{ width: '17%', padding: 2, marginBottom: -1, maxHeight: '200px', overflowY: 'auto' }}>
+        <p className="text-[19px] mb-2 ml-2">Filter by Date</p>        
+        <FormControl fullWidth variant="outlined">
           <Select
-            labelId="category-select-label"
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            label="Category"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
             sx={{ backgroundColor: 'white' }}
           >
-            <MenuItem value="">
-              <p>All</p>
-            </MenuItem>
-            {categories.map((category) => (
-              <MenuItem key={category.value} value={category.value}>
-                {category.label}
+            {dateOptions.map(option => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
               </MenuItem>
             ))}
           </Select>
@@ -231,8 +224,8 @@ const AdminSuggestionTable = React.forwardRef<unknown, {}>((props, ref) => {
                     style={{
                       backgroundColor:
                         row.status === 'read'
-                          ? 'rgba(209, 213, 219, 0.3)' 
-                          : 'rgba(255, 255, 255, 0.7)', 
+                          ? 'rgba(209, 213, 219, 0.9)' 
+                          : 'rgba(255, 255, 255, 0.5)', 
                     }}
                   >
                     {columns.map((column) => {
