@@ -1,0 +1,26 @@
+{
+    "version": 2,
+    "routes": [
+      {
+        "src": "/api/auth/(.*)",
+        "dest": "/src/routes/auth.routes.ts"
+      },
+      {
+        "src": "/api/suggestions/(.*)",
+        "dest": "/src/routes/routes.ts"
+      },
+      {
+        "src": "/api/(.*)",
+        "dest": "/src/server.ts"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/src/app.ts"
+      }
+    ],
+    "build": {
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+}  

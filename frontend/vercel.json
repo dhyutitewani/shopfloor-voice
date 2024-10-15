@@ -1,0 +1,27 @@
+{
+    "version": 2,
+    "routes": [
+      {
+        "src": "/api/(.*)",
+        "dest": "/api/auth/[...nextauth]/route.ts"
+      },
+      {
+        "src": "/admin/(.*)",
+        "dest": "/admin/page.tsx"
+      },
+      {
+        "src": "/users/(.*)",
+        "dest": "/users/page.tsx"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/index.html"
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
+    ]
+}  
