@@ -3,7 +3,7 @@ import StatisticsGraph from '@/components/StatisticsGraph/StatisticsGraph';
 
 export default function Page() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-16">
+    <main className="flex min-h-screen flex-col items-center justify-between p-12">
       <div className="z-10 w-full items-center text-center justify-between mb-10">
         <h1 className="underline text-3xl font-medium">Employee Suggestions</h1>
       </div>

@@ -6,7 +6,7 @@ export default function Page() {
       <div className="w-full max-w-2xl text-center mb-4">
         <h1 className="underline text-3xl font-medium">View Suggestions</h1>
       </div>
-      <div className="mt-7 mb-10">
+      <div className="mt-5 mb-3">
         <SuggestionTable />
       </div>
     </main>
