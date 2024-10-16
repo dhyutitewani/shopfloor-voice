@@ -1,3 +1,3 @@
 # Shopfloor Voice
 
-Suggestion Platform for On-Site Workers.
+An online platform enabling non-desk workers to submit suggestions realted to their working enviornment.
