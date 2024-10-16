@@ -10,7 +10,6 @@ import MenuItem from '@mui/material/MenuItem';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
-import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import TableContainer from '@mui/material/TableContainer';
 
@@ -114,7 +113,7 @@ const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(p
 
   return (
     <Box>
-      <Box sx={{ width: '19%', padding: 2, maxHeight: '200px', overflowY: 'auto' }}>
+      <Box sx={{ width: '20%', padding: 2, maxHeight: '200px', overflowY: 'auto' }}>
         <p className="text-[19px] mb-2 ml-2">Filter by Date</p>
         <FormControl fullWidth variant="outlined">
           <Select
