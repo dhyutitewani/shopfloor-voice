@@ -1,27 +1,18 @@
-'use client';
+import ClientLayout from './clientLayout';
 
-import '@/styles/globals.css';
-import { Inter } from 'next/font/google';
-import { SessionProvider } from 'next-auth/react';
-import AdminSidebar from '@/components/Sidebar/AdminSidebar';
+export const metadata = {
+  title: "shopfloorvoice",
+  description: "created to collect suggestions",
+};
 
-const inter = Inter({ subsets: ["latin"] });
-
-export default function RootLayout({
+export default function ARootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <SessionProvider>
-      <html lang="en">
-        <body className={inter.className}>
-            <div style={{ display: "flex" }}>
-              <AdminSidebar />
-              <main style={{ flex: 1 }}>{children}</main>
-            </div>
-        </body>
-      </html>
-    </SessionProvider>
+    <html lang="en">
+      <ClientLayout>{children}</ClientLayout>
+    </html>
   );
-}
+}  

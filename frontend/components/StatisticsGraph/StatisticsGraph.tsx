@@ -41,13 +41,18 @@ const SuggestionBarGraph: React.FC = () => {
 
     suggestionData.forEach((suggestion) => {
       const date = new Date(suggestion.dateTime);
-      const monthYear = date.toLocaleString('default', { month: 'short' });
+      const month = date.getMonth();  // Get month as a number (0 = Jan, 11 = Dec)
+
+      // Map month number to short month name
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthYear = monthNames[month];
+
       suggestionsPerMonth[monthYear] = (suggestionsPerMonth[monthYear] || 0) + 1;
     });
 
     // Define the correct month order
     const monthOrder = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
 
@@ -59,8 +64,8 @@ const SuggestionBarGraph: React.FC = () => {
       datasets: [
         {
           data: orderedData,
-          backgroundColor: 'rgba(0, 62, 115, 1)', 
-          borderColor: 'rgba(0, 62, 115, 1)', 
+          backgroundColor: 'rgba(0, 62, 115, 1)',
+          borderColor: 'rgba(0, 62, 115, 1)',
           borderWidth: 1,
           barThickness: 50,
         },
