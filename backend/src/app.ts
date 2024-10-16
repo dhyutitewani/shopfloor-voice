@@ -8,7 +8,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 const app: Application = express();
 
 app.use(cors({
-  origin:'https://shopfloorvoice.onrender.com',
+  origin:'https://shopfloorvoice.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
 }));
