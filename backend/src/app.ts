@@ -7,7 +7,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 
 const app: Application = express();
 
-const LOCALHOST_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const LOCALHOST_URL = process.env.FRONTEND_URL || 'https://shopfloorvoice.vercel.app';
 
 app.use(cors({
   origin: LOCALHOST_URL,
