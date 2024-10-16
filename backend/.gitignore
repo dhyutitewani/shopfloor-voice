@@ -1,4 +1,8 @@
 .env
 .env.local
+
 node_modules/
+
 src/seeds/
+
+dist/
