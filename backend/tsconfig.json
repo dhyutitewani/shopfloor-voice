@@ -122,6 +122,7 @@
     "skipLibCheck": true
   },
   "include": [
+    "server.ts", "app.ts", "routes/**/*.ts",
     "src/**/*" // Include the source files
   ]
 }
