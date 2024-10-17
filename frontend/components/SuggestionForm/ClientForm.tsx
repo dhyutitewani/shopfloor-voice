@@ -148,7 +148,7 @@ export default function ClientForm() {
       <div className="mt-4 flex justify-center">
         <button
           type="submit"
-          className="w-1/4 h-14 dark:bg-neutral-500/30 text-black py-2 px-2 border border-black rounded-lg shadow-sm text-2xl"
+          className="w-32 h-14 bg-neutral-500/30 text-black py-2 px-2 border border-black rounded-lg shadow-sm text-2xl"
         >
           Submit
         </button>
