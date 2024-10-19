@@ -1,7 +1,10 @@
 import Link from 'next/link';
+import getServerSessionUser from "@/hooks/getServerSessionUser";
 import StatisticsGraph from '@/components/StatisticsGraph/StatisticsGraph';
 
-export default function Page() {
+export default async function Page() {
+  const currUser = await getServerSessionUser()
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-12">
       <div className="z-10 w-full items-center text-center justify-between mb-10">

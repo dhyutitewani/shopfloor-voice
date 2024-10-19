@@ -9,7 +9,7 @@ export default function Logout() {
 
   if (!session) {
     router.push('/admin/login');
-    return null;
+    return null;    
   }
 
   return (

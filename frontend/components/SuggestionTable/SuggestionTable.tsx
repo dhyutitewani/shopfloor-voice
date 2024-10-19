@@ -13,6 +13,7 @@ import TableHead from '@mui/material/TableHead';
 import FormControl from '@mui/material/FormControl';
 import TableContainer from '@mui/material/TableContainer';
 
+// Type for the columns
 interface Column {
   id: 'hash' | 'suggestion' | 'category' | 'dateTime' | 'employeeId';
   label: string;
@@ -23,6 +24,7 @@ interface Column {
   format?: (value: any) => string;
 }
 
+// Table columns configuration
 const columns: readonly Column[] = [
   { id: 'hash', label: '#', minWidth: 90, maxWidth: 90 },
   { id: 'category', label: 'Category', minWidth: 100, maxWidth: 120 },
@@ -37,6 +39,7 @@ const columns: readonly Column[] = [
   { id: 'employeeId', label: 'Employee ID', minWidth: 100, maxWidth: 120 },
 ];
 
+// Type for row data
 interface Data {
   hash: string;
   suggestion: string;
@@ -45,6 +48,7 @@ interface Data {
   employeeId: string;
 }
 
+// Date filter options
 const dateOptions = [
   { value: 'oldest', label: 'Oldest to Latest' },
   { value: 'latest', label: 'Latest to Oldest' },
@@ -52,32 +56,45 @@ const dateOptions = [
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(props, ref) {
-  const [rows, setRows] = React.useState<Data[]>([]);
-  const [dateFilter, setDateFilter] = React.useState<string>('oldest'); 
+interface SuggestionTableProps {
+  ref: React.ForwardedRef<unknown>;
+}
 
+const SuggestionTable = React.forwardRef<unknown, SuggestionTableProps>((props, ref) => {
+  const [rows, setRows] = React.useState<Data[]>([]);
+  const [dateFilter, setDateFilter] = React.useState<string>('oldest');
+  const [loading, setLoading] = React.useState<boolean>(true); // Added loading state
+
+  // Fetch suggestions from the backend
   const fetchSuggestions = async () => {
+    setLoading(true); // Set loading to true before fetching data
     try {
       const response = await fetch(`${BACKEND_URL}/api/suggestions`);
       if (response.ok) {
         const data: Data[] = await response.json();
-        setRows(data.map((item) => ({
-          hash: item.hash,
-          suggestion: item.suggestion,
-          category: item.category,
-          dateTime: new Date(item.dateTime).getTime(),
-          employeeId: item.employeeId || 'Anonymous',
-        })));
+        setRows(
+          data.map((item) => ({
+            hash: item.hash,
+            suggestion: item.suggestion,
+            category: item.category,
+            dateTime: new Date(item.dateTime).getTime(),
+            employeeId: item.employeeId || 'Anonymous',
+          }))
+        );
       }
     } catch (error) {
       console.error('Error fetching suggestions:', error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching data
     }
   };
 
+  // Delete a specific suggestion by hash
   const deleteSuggestion = async (hash: string) => {
     const token = localStorage.getItem('token');
 
     if (!token) {
+      alert('Unauthorized. Please log in.');
       return;
     }
 
@@ -87,7 +104,7 @@ const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(p
       const response = await fetch(`${BACKEND_URL}/api/suggestions/${hash}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -99,14 +116,17 @@ const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(p
     }
   };
 
+  // Expose `fetchSuggestions` through the forwarded ref
   React.useImperativeHandle(ref, () => ({
     fetchSuggestions,
   }));
 
+  // Fetch suggestions on component mount
   React.useEffect(() => {
     fetchSuggestions();
   }, []);
 
+  // Sort rows based on date filter
   const sortedRows = [...rows].sort((a, b) => {
     return dateFilter === 'latest' ? b.dateTime - a.dateTime : a.dateTime - b.dateTime;
   });
@@ -119,10 +139,9 @@ const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(p
           <Select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            // label="Sort Order"
             sx={{ backgroundColor: 'white' }}
           >
-            {dateOptions.map(option => (
+            {dateOptions.map((option) => (
               <MenuItem key={option.value} value={option.value}>
                 {option.label}
               </MenuItem>
@@ -151,17 +170,23 @@ const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(p
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedRows.length === 0 ? (
+              {loading ? (
                 <TableRow>
-                  <TableCell colSpan={columns.length} align='center'>
+                  <TableCell colSpan={columns.length} align="center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : sortedRows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length} align="center">
                     No suggestions found.
                   </TableCell>
                 </TableRow>
               ) : (
                 sortedRows.map((row) => (
-                  <TableRow hover role='checkbox' tabIndex={-1} key={row.hash}>
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.hash}>
                     {columns.map((column) => {
-                      const value = row[column.id];
+                      const value = row[column.id as keyof Data];
                       return (
                         <TableCell
                           key={column.id}
@@ -178,18 +203,18 @@ const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(p
                               style={{
                                 maxHeight: column.maxHeight,
                                 maxWidth: column.maxWidth,
-                                overflowY: 'auto', // Vertical scroll
-                                paddingRight: '8px', // Prevent scrollbar overlap
+                                overflowY: 'auto',
+                                paddingRight: '8px',
                               }}
                             >
                               {column.format && typeof value === 'number'
                                 ? column.format(value)
                                 : value}
                             </div>
+                          ) : column.format && typeof value === 'number' ? (
+                            column.format(value)
                           ) : (
-                            column.format && typeof value === 'number'
-                              ? column.format(value)
-                              : value
+                            value
                           )}
                         </TableCell>
                       );

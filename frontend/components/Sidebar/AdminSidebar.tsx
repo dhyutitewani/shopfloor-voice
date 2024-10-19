@@ -1,13 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function AdminSidebar() {
+  const currUser = useCurrentUser();
   const { data: session, status } = useSession();
 
-  // Determine if the session is loading
   const loading = status === 'loading';
+
+  const handleLogout = async () => {
+    await signOut({ redirect: true, callbackUrl: '/admin/login' }); // Logout and redirect to login page
+  };
 
   return (
     <aside className="w-64 min-h-screen bg-gray-800 p-4">
@@ -20,9 +25,11 @@ export default function AdminSidebar() {
           {loading ? (
             <li>Loading...</li> // Display loading state while determining session
           ) : session ? (
-            <li>
-              <Link href="/admin/logout">Logout</Link>
-            </li>
+            currUser?.role === 'ADMIN' && (
+              <>
+                <li><Link href="/admin/logout">Logout</Link></li>
+              </>
+            )
           ) : (
             <li><Link href="/admin/login">Login</Link></li>
           )}
