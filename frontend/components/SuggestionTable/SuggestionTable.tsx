@@ -60,7 +60,7 @@ interface SuggestionTableProps {
   ref: React.ForwardedRef<unknown>;
 }
 
-const SuggestionTable = React.forwardRef<unknown, SuggestionTableProps>((props, ref) => {
+const SuggestionTable = React.forwardRef<unknown, {}>(function SuggestionTable(props, ref) {
   const [rows, setRows] = React.useState<Data[]>([]);
   const [dateFilter, setDateFilter] = React.useState<string>('oldest');
   const [loading, setLoading] = React.useState<boolean>(true); // Added loading state
